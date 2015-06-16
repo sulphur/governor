@@ -69,7 +69,7 @@ class Postgresql:
     def sync_from_leader(self, leader):
         leader = urlparse(leader["address"])
 
-        f = open("./pgpass", "w")
+        f = open("/tmp/pgpass", "w")
         f.write("%(hostname)s:%(port)s:*:%(username)s:%(password)s\n" %
                 {"hostname": leader.hostname, "port": leader.port, "username": leader.username, "password": leader.password})
         f.close()
@@ -158,8 +158,8 @@ class Postgresql:
 
     def write_pg_hba(self):
         f = open("%s/pg_hba.conf" % self.data_dir, "a")
-        f.write("host all all all trust\n" )
-        f.write("host all all %(self)s trust\n" % {"self": self.replication["network"]} )
+        # f.write("host all all all trust\n" )
+        # f.write("host all all %(self)s trust\n" % {"self": self.replication["network"]} )
         f.write("host replication %(username)s %(network)s md5" %
                 {"username": self.replication["username"], "network": self.replication["network"]})
         f.close()
