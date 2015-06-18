@@ -186,7 +186,7 @@ primary_conninfo = 'user=%(user)s password=%(password)s host=%(hostname)s port=%
         f.close()
 
     def follow_the_leader(self, leader_hash):
-        os.system leader_hash
+        print(leader_hash)
         leader = urlparse(leader_hash["address"])
         if os.system("grep 'host=%(hostname)s port=%(port)s' %(data_dir)s/recovery.conf > /dev/null" % {"hostname": leader.hostname, "port": leader.port, "data_dir": self.data_dir}) != 0:
             self.write_recovery_conf(leader_hash)
