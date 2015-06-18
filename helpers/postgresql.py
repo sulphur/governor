@@ -92,7 +92,7 @@ class Postgresql:
             logger.error("Cannot start PostgreSQL because one is already running.")
             return False
 
-        pid_path = "%s/postmaster.pid" % self.data_dir
+        pid_path =  self.pid_path
         if os.path.exists(pid_path):
             os.remove(pid_path)
             logger.info("Removed %s" % pid_path)
