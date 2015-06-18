@@ -12,6 +12,7 @@ class Postgresql:
         self.name = config["name"]
         self.host, self.port = config["listen"].split(":")
         self.data_dir = config["data_dir"]
+        self.config_dir = config["config_dir3"]
         self.replication = config["replication"]
 
         self.config = config
@@ -69,15 +70,16 @@ class Postgresql:
     def sync_from_leader(self, leader):
         leader = urlparse(leader["address"])
 
-        f = open("/tmp/pgpass", "w")
+        pg_pass_location = "%s/pgpass" % self.config_dir
+        f = open(pg_pass_location, "w")
         f.write("%(hostname)s:%(port)s:*:%(username)s:%(password)s\n" %
                 {"hostname": leader.hostname, "port": leader.port, "username": leader.username, "password": leader.password})
         f.close()
 
-        os.system("chmod 600 pgpass")
+        os.system("chmod 600 %s",pg_pass_location)
 
-        return os.system("PGPASSFILE=pgpass pg_basebackup -R -D %(data_dir)s --host=%(host)s --port=%(port)s -U %(username)s" %
-                {"data_dir": self.data_dir, "host": leader.hostname, "port": leader.port, "username": leader.username}) == 0
+        return os.system("PGPASSFILE=%(pgpass) pg_basebackup -R -D %(data_dir)s --host=%(host)s --port=%(port)s -U %(username)s" %
+                {"data_dir": self.data_dir, "host": leader.hostname, "port": leader.port, "username": leader.username, "pgpass": pg_pass_location}) == 0
 
     def is_leader(self):
         return not self.query("SELECT pg_is_in_recovery();").fetchone()[0]
@@ -157,7 +159,7 @@ class Postgresql:
         return member
 
     def write_pg_hba(self):
-        f = open("%s/pg_hba.conf" % self.data_dir, "a")
+        f = open("%s/pg_hba.conf" % self.config_dir, "a")
         # f.write("host all all all trust\n" )
         # f.write("host all all %(self)s trust\n" % {"self": self.replication["network"]} )
         f.write("host replication %(username)s %(network)s md5" %
@@ -165,7 +167,7 @@ class Postgresql:
         f.close()
 
     def write_recovery_conf(self, leader_hash):
-        f = open("%s/recovery.conf" % self.data_dir, "w")
+        f = open("%s/recovery.conf" % self.config_dir, "w")
         f.write("""
 standby_mode = 'on'
 primary_slot_name = '%(recovery_slot)s'
@@ -190,7 +192,7 @@ primary_conninfo = 'user=%(user)s password=%(password)s host=%(hostname)s port=%
         return True
 
     def follow_no_leader(self):
-        if not os.path.exists("%s/recovery.conf" % self.data_dir) or os.system("grep primary_conninfo %(data_dir)s/recovery.conf &> /dev/null" % {"data_dir": self.data_dir}) == 0:
+        if not os.path.exists("%s/recovery.conf" % self.config_dir) or os.system("grep primary_conninfo %(config_dir)s/recovery.conf &> /dev/null" % {"data_dir": self.config_dir}) == 0:
             self.write_recovery_conf(None)
             if self.is_running():
                 self.restart()

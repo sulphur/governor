@@ -7,6 +7,8 @@ postgresql:
   name: postgresql0
   listen: 127.0.0.1:5432
   data_dir: data/postgresql0
+  config_dir: data/postgresql0
+  pid_path: /var/run/postgresql/9.4-main.pid
   maximum_lag_on_failover: 1048576 # 1 megabyte in bytes
   replication:
     username: replicator
@@ -23,3 +25,6 @@ postgresql:
     archive_timeout: 1800s
     max_replication_slots: 5
     hot_standby: "on"
+    # config_file:/etc/postgresql/9.4/main/postgresql.conf
+    config_file:data/postgresql0/main/postgresql.conf
+
