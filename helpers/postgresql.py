@@ -12,7 +12,7 @@ class Postgresql:
         self.name = config["name"]
         self.host, self.port = config["listen"].split(":")
         self.data_dir = config["data_dir"]
-        self.config_dir = config["config_dir3"]
+        self.config_dir = config["config_dir"]
         self.replication = config["replication"]
 
         self.config = config
