@@ -13,6 +13,7 @@ class Postgresql:
         self.host, self.port = config["listen"].split(":")
         self.data_dir = config["data_dir"]
         self.config_dir = config["config_dir"]
+        self.pid_path = config["pid_path"]
         self.replication = config["replication"]
 
         self.config = config
