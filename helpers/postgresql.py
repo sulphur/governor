@@ -92,7 +92,7 @@ class Postgresql:
             logger.error("Cannot start PostgreSQL because one is already running.")
             return False
 
-        pid_path =  self.pid_path
+        pid_path = self.pid_path
         if os.path.exists(pid_path):
             os.remove(pid_path)
             logger.info("Removed %s" % pid_path)
@@ -192,7 +192,7 @@ primary_conninfo = 'user=%(user)s password=%(password)s host=%(hostname)s port=%
         return True
 
     def follow_no_leader(self):
-        if not os.path.exists("%s/recovery.conf" % self.config_dir) or os.system("grep primary_conninfo %(config_dir)s/recovery.conf &> /dev/null" % {"data_dir": self.config_dir}) == 0:
+        if not os.path.exists("%s/recovery.conf" % self.config_dir) or os.system("grep primary_conninfo %(config_dir)s/recovery.conf &> /dev/null" % {"config_dir": self.config_dir}) == 0:
             self.write_recovery_conf(None)
             if self.is_running():
                 self.restart()
